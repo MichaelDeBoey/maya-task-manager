@@ -18,6 +18,7 @@ export const CreateTaskForm: FunctionComponent<Props> = ({
   onCreateTask,
   status,
 }) => {
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const submit = useSubmit();
 
@@ -49,6 +50,13 @@ export const CreateTaskForm: FunctionComponent<Props> = ({
         autoFocus
         className="h-14 w-full resize-none rounded-lg border-slate-300 px-2 py-1 text-sm shadow shadow-slate-300 outline-hidden placeholder:text-sm placeholder:text-slate-500"
         name="title"
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+
+            saveButtonRef.current?.click();
+          }
+        }}
         placeholder="Enter a title for this task"
         ref={textAreaRef}
         required
@@ -58,6 +66,7 @@ export const CreateTaskForm: FunctionComponent<Props> = ({
         <button
           aria-label="Create task"
           className="cursor-pointer rounded-lg bg-blue-500 p-2 text-left text-sm font-medium text-white"
+          ref={saveButtonRef}
           type="submit"
         >
           Save Card

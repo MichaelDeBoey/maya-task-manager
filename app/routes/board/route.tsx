@@ -5,9 +5,10 @@ import invariant from "tiny-invariant";
 import { badRequest } from "~/utils";
 
 import type { Route } from "./+types/route";
-import { deleteTask, getAllTasksForBoard } from "./board.db.server";
+import { createTask, deleteTask, getAllTasksForBoard } from "./board.db.server";
 import { Column } from "./column";
 import { INTENTS } from "./constants";
+import { useCreatedTasks } from "./use-created-tasks";
 import { useDeletedTasks } from "./use-deleted-tasks";
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -18,8 +19,25 @@ export const action = async ({ request }: Route.ActionArgs) => {
     throw badRequest("Missing intent");
   }
 
-  if (![INTENTS.deleteTask].includes(String(intent) as keyof typeof INTENTS)) {
+  if (
+    ![INTENTS.createTask, INTENTS.deleteTask].includes(
+      String(intent) as keyof typeof INTENTS,
+    )
+  ) {
     throw badRequest(`Unknown intent: ${intent}`);
+  }
+
+  if (intent === INTENTS.createTask) {
+    const id = String(formData.get("id"));
+    invariant(id, "Missing `id`");
+    const order = Number(formData.get("order"));
+    invariant(typeof order === "number", "Missing `order`");
+    const status = String(formData.get("status")) as Status;
+    invariant(status, "Missing `status`");
+    const title = String(formData.get("title"));
+    invariant(title, "Missing `title`");
+
+    return createTask({ id, order, status, title });
   }
 
   if (intent === INTENTS.deleteTask) {
@@ -41,8 +59,11 @@ export const meta: Route.MetaFunction = () => [
 const Board: FunctionComponent<Route.ComponentProps> = ({
   loaderData: { tasks },
 }) => {
+  const createdTasks = useCreatedTasks();
   const deletedTasks = useDeletedTasks();
-  const tasksToShow = tasks.filter(({ id }) => !deletedTasks.includes(id));
+  const tasksToShow = tasks
+    .concat(createdTasks)
+    .filter(({ id }) => !deletedTasks.includes(id));
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-x-scroll">

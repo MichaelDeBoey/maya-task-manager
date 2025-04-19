@@ -34,7 +34,17 @@ export const Layout: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <Links />
     </head>
     <body className="h-screen bg-slate-200 text-slate-900">
-      {children}
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="box-border flex items-center justify-between border-b border-slate-800 bg-slate-900 px-8 py-4">
+          <Link to="/" className="block w-1/3 leading-3">
+            <div className="text-2xl font-black text-white">Task manager</div>
+            <div className="text-slate-500">Maya</div>
+          </Link>
+        </div>
+
+        <div className="h-full min-h-0 grow">{children}</div>
+      </div>
+
       <ScrollRestoration />
       <Scripts />
     </body>

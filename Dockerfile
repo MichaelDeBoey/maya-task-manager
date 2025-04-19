@@ -17,24 +17,33 @@ ARG PNPM_VERSION=10
 RUN npm install -g pnpm@$PNPM_VERSION
 
 
-FROM base AS development-dependencies-env
-COPY . /app
-RUN pnpm install
+# Throw-away build stage to reduce size of final image
+FROM base AS build
 
+# Install packages needed to build node modules
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-FROM base AS production-dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
-RUN pnpm install --prod
+# Install node modules
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod=false
 
+# Copy application code
+COPY . .
 
-FROM base AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
+# Build application
 RUN pnpm run build
 
+# Remove development dependencies
+RUN pnpm prune --prod
 
+
+# Final stage for app image
 FROM base
-COPY ./package.json pnpm-lock.yaml /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
-CMD ["pnpm", "run", "start"]
+
+# Copy built application
+COPY --from=build /app /app
+
+# Start the server by default, this can be overwritten at runtime
+EXPOSE 3000
+CMD [ "pnpm", "run", "start" ]

@@ -2,6 +2,7 @@ import { Status } from "@prisma/client";
 import type { FunctionComponent } from "react";
 import invariant from "tiny-invariant";
 
+import { emitter, EVENTS } from "~/events.server";
 import { badRequest } from "~/utils";
 
 import type { Route } from "./+types/route";
@@ -35,20 +36,29 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === INTENTS.createTask) {
     const task = parseTaskMutation(formData);
 
-    return createTask(task);
+    const createdTask = await createTask(task);
+    emitter.emit(EVENTS.TASK_CREATED, new Date().toISOString());
+
+    return createdTask;
   }
 
   if (intent === INTENTS.deleteTask) {
     const taskId = String(formData.get("taskId"));
     invariant(taskId, "Missing `taskId`");
 
-    return deleteTask(taskId);
+    const deletedTask = await deleteTask(taskId);
+    emitter.emit(EVENTS.TASK_DELETED, new Date().toISOString());
+
+    return deletedTask;
   }
 
   if (intent === INTENTS.moveTask) {
     const task = parseTaskMutation(formData);
 
-    return updateTask(task);
+    const updatedTask = await updateTask(task);
+    emitter.emit(EVENTS.TASK_UPDATED, new Date().toISOString());
+
+    return updatedTask;
   }
 };
 

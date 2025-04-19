@@ -11,6 +11,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useRealtimeTasksRevalidation } from "./use-realtime-tasks-revalidation";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -51,7 +52,11 @@ export const Layout: FunctionComponent<PropsWithChildren> = ({ children }) => (
   </html>
 );
 
-const App: FunctionComponent = () => <Outlet />;
+const App: FunctionComponent = () => {
+  useRealtimeTasksRevalidation();
+
+  return <Outlet />;
+};
 export default App;
 
 export const ErrorBoundary: FunctionComponent<Route.ErrorBoundaryProps> = ({

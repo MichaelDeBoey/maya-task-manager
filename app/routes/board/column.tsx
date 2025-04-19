@@ -23,8 +23,8 @@ export const Column: FunctionComponent<Props> = ({ status, tasks }) => (
     <ul className="min-h-[2px] grow overflow-auto">
       {tasks
         .sort((a, b) => a.order - b.order)
-        .map((task, index, items) => (
-          <Card key={task.id} title={task.title} />
+        .map((task) => (
+          <Card id={task.id} key={task.id} title={task.title} />
         ))}
     </ul>
   </div>

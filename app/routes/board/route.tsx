@@ -5,11 +5,16 @@ import invariant from "tiny-invariant";
 import { badRequest } from "~/utils";
 
 import type { Route } from "./+types/route";
-import { createTask, deleteTask, getAllTasksForBoard } from "./board.db.server";
+import {
+  createTask,
+  deleteTask,
+  getAllTasksForBoard,
+  updateTask,
+} from "./board.db.server";
 import { Column } from "./column";
 import { INTENTS } from "./constants";
-import { useCreatedTasks } from "./use-created-tasks";
-import { useDeletedTasks } from "./use-deleted-tasks";
+import { useTasksToShow } from "./use-tasks-to-show";
+import { parseTaskMutation } from "./utils";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -20,7 +25,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (
-    ![INTENTS.createTask, INTENTS.deleteTask].includes(
+    ![INTENTS.createTask, INTENTS.deleteTask, INTENTS.moveTask].includes(
       String(intent) as keyof typeof INTENTS,
     )
   ) {
@@ -28,16 +33,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === INTENTS.createTask) {
-    const id = String(formData.get("id"));
-    invariant(id, "Missing `id`");
-    const order = Number(formData.get("order"));
-    invariant(typeof order === "number", "Missing `order`");
-    const status = String(formData.get("status")) as Status;
-    invariant(status, "Missing `status`");
-    const title = String(formData.get("title"));
-    invariant(title, "Missing `title`");
+    const task = parseTaskMutation(formData);
 
-    return createTask({ id, order, status, title });
+    return createTask(task);
   }
 
   if (intent === INTENTS.deleteTask) {
@@ -45,6 +43,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
     invariant(taskId, "Missing `taskId`");
 
     return deleteTask(taskId);
+  }
+
+  if (intent === INTENTS.moveTask) {
+    const task = parseTaskMutation(formData);
+
+    return updateTask(task);
   }
 };
 
@@ -59,11 +63,7 @@ export const meta: Route.MetaFunction = () => [
 const Board: FunctionComponent<Route.ComponentProps> = ({
   loaderData: { tasks },
 }) => {
-  const createdTasks = useCreatedTasks();
-  const deletedTasks = useDeletedTasks();
-  const tasksToShow = tasks
-    .concat(createdTasks)
-    .filter(({ id }) => !deletedTasks.includes(id));
+  const tasksToShow = useTasksToShow(tasks);
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-x-scroll">

@@ -10,3 +10,9 @@ export const deleteTask = async (id: Task["id"]) =>
   prisma.task.delete({ where: { id } });
 
 export const getAllTasksForBoard = async () => prisma.task.findMany();
+
+export const updateTask = async ({
+  id,
+  ...data
+}: Pick<Task, "id" | "order" | "status" | "title">) =>
+  prisma.task.update({ data, where: { id } });

@@ -1,6 +1,8 @@
+import type { FunctionComponent, PropsWithChildren } from "react";
 import {
   isRouteErrorResponse,
   Links,
+  Link,
   Meta,
   Outlet,
   Scripts,
@@ -23,29 +25,28 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
+export const Layout: FunctionComponent<PropsWithChildren> = ({ children }) => (
+  <html lang="en">
+    <head>
+      <meta charSet="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <Meta />
+      <Links />
+    </head>
+    <body className="h-screen bg-slate-200 text-slate-900">
+      {children}
+      <ScrollRestoration />
+      <Scripts />
+    </body>
+  </html>
+);
 
-export default function App() {
-  return <Outlet />;
-}
+const App: FunctionComponent = () => <Outlet />;
+export default App;
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+export const ErrorBoundary: FunctionComponent<Route.ErrorBoundaryProps> = ({
+  error,
+}) => {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
@@ -65,11 +66,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     <main className="container mx-auto p-4 pt-16">
       <h1>{message}</h1>
       <p>{details}</p>
-      {stack && (
+      {stack ? (
         <pre className="w-full overflow-x-auto p-4">
           <code>{stack}</code>
         </pre>
-      )}
+      ) : null}
     </main>
   );
-}
+};

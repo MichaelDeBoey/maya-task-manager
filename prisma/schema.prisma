@@ -10,6 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
 model Task {
-  id Int @id @default(autoincrement())
+  id     String @id @default(uuid())
+  // we split the difference between the prev/next items. If an item is dropped
+  // between 1.00 and 2.00 it will be 1.50. If dropped between 1.50 and 2.00 it
+  // will be 1.75, etc.
+  order  Float
+  status Status @default(TODO)
+  title  String
 }

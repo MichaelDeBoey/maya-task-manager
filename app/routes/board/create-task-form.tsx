@@ -56,6 +56,10 @@ export const CreateTaskForm: FunctionComponent<Props> = ({
 
             saveButtonRef.current?.click();
           }
+
+          if (event.key === "Escape") {
+            onCancel();
+          }
         }}
         placeholder="Enter a title for this task"
         ref={textAreaRef}

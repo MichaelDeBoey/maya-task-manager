@@ -13,6 +13,7 @@ import { CONTENT_TYPES, INTENTS } from "./constants";
 import { CreateTaskForm } from "./create-task-form";
 
 const statusToTitle: Record<Status, string> = {
+  [Status.BACKLOG]: "Backlog",
   [Status.TODO]: "Pending",
   [Status.IN_PROGRESS]: "In Progress",
   [Status.DONE]: "Complete",

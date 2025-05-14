@@ -34,7 +34,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.7.0",
-    "react-router-devtools": "^1.1.10",
+    "react-router-devtools": "^5.0.5",
     "tailwindcss": "^4.1.6",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",

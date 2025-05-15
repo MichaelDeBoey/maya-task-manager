@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@epic-web/remember": "^1.1.0",
-    "@prisma/client": "^6.7.0",
+    "@prisma/client": "^6.8.0",
     "@react-router/fs-routes": "^7.5.2",
     "@react-router/node": "^7.5.2",
     "@react-router/serve": "^7.5.2",
